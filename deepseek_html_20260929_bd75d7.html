@@ -1,0 +1,1916 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GitHub Interactivo — Guía Completa para Principiantes</title>
+<meta name="description" content="Guía interactiva para aprender Git y GitHub: comandos, terminal simulada, ramas, Pull Requests, GitHub Pages y quiz.">
+
+<style>
+/* ============================================================
+   1. VARIABLES Y RESET
+   ============================================================ */
+:root{
+  --bg:#0d1117;
+  --surface:#161b22;
+  --surface-2:#1c2128;
+  --border:#30363d;
+  --text:#c9d1d9;
+  --muted:#8b949e;
+  --accent:#58a6ff;
+  --green:#3fb950;
+  --orange:#f78166;
+  --purple:#bc8cff;
+  --yellow:#d29922;
+  --radius:12px;
+  --shadow:0 8px 24px rgba(0,0,0,.5);
+  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+
+html{scroll-behavior:smooth;scroll-padding-top:90px;}
+
+body{
+  font-family:var(--font);
+  background:var(--bg);
+  color:var(--text);
+  line-height:1.7;
+  overflow-x:hidden;
+}
+
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+
+img{max-width:100%;display:block;}
+
+/* ============================================================
+   2. FONDO ANIMADO
+   ============================================================ */
+.bg-grid{
+  position:fixed;
+  inset:0;
+  background-image:
+    linear-gradient(rgba(88,166,255,.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(88,166,255,.05) 1px, transparent 1px);
+  background-size:50px 50px;
+  pointer-events:none;
+  z-index:-2;
+  mask-image:radial-gradient(ellipse at 50% 0%, #000 20%, transparent 75%);
+  -webkit-mask-image:radial-gradient(ellipse at 50% 0%, #000 20%, transparent 75%);
+}
+.bg-glow{
+  position:fixed;
+  width:600px;height:600px;
+  border-radius:50%;
+  filter:blur(120px);
+  opacity:.25;
+  pointer-events:none;
+  z-index:-1;
+}
+.glow-1{background:#1f6feb;top:-200px;left:-150px;}
+.glow-2{background:#8957e5;top:40%;right:-250px;opacity:.18;}
+
+/* ============================================================
+   3. HERO
+   ============================================================ */
+.hero{
+  max-width:1100px;
+  margin:0 auto;
+  padding:110px 24px 70px;
+  text-align:center;
+  position:relative;
+}
+.badge{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:6px 16px;
+  border:1px solid var(--border);
+  border-radius:999px;
+  background:var(--surface);
+  font-size:.8rem;
+  color:var(--muted);
+  margin-bottom:26px;
+  animation:fadeUp .7s ease both;
+}
+.badge .pulse{
+  width:8px;height:8px;border-radius:50%;
+  background:var(--green);
+  box-shadow:0 0 0 0 rgba(63,185,80,.7);
+  animation:pulse 2s infinite;
+}
+@keyframes pulse{
+  0%{box-shadow:0 0 0 0 rgba(63,185,80,.7);}
+  70%{box-shadow:0 0 0 10px rgba(63,185,80,0);}
+  100%{box-shadow:0 0 0 0 rgba(63,185,80,0);}
+}
+
+.hero h1{
+  font-size:clamp(2.1rem, 6vw, 3.8rem);
+  line-height:1.15;
+  font-weight:800;
+  letter-spacing:-1.5px;
+  margin-bottom:22px;
+  animation:fadeUp .7s .1s ease both;
+}
+.grad{
+  background:linear-gradient(120deg,#58a6ff,#bc8cff,#3fb950);
+  background-size:200% auto;
+  -webkit-background-clip:text;
+  background-clip:text;
+  -webkit-text-fill-color:transparent;
+  animation:shine 4s linear infinite;
+}
+@keyframes shine{to{background-position:200% center;}}
+
+.hero p{
+  max-width:660px;
+  margin:0 auto 34px;
+  color:var(--muted);
+  font-size:1.05rem;
+  animation:fadeUp .7s .2s ease both;
+}
+.hero-btns{
+  display:flex;gap:14px;justify-content:center;flex-wrap:wrap;
+  animation:fadeUp .7s .3s ease both;
+}
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:13px 26px;
+  border-radius:10px;
+  font-weight:600;
+  font-size:.95rem;
+  border:1px solid var(--border);
+  background:var(--surface);
+  color:var(--text);
+  cursor:pointer;
+  transition:.25s;
+  font-family:inherit;
+}
+.btn:hover{background:var(--surface-2);transform:translateY(-2px);text-decoration:none;}
+.btn-primary{
+  background:linear-gradient(135deg,#238636,#2ea043);
+  border-color:#2ea043;
+  color:#fff;
+  box-shadow:0 4px 20px rgba(46,160,67,.35);
+}
+.btn-primary:hover{background:linear-gradient(135deg,#2ea043,#3fb950);}
+
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(24px);}
+  to{opacity:1;transform:translateY(0);}
+}
+
+/* Stats */
+.stats{
+  display:flex;gap:44px;justify-content:center;flex-wrap:wrap;
+  margin-top:60px;
+  animation:fadeUp .7s .4s ease both;
+}
+.stat b{
+  display:block;
+  font-size:2rem;
+  color:#fff;
+  font-weight:800;
+}
+.stat span{font-size:.82rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;}
+
+/* ============================================================
+   4. NAVEGACIÓN
+   ============================================================ */
+nav{
+  position:sticky;
+  top:0;
+  z-index:100;
+  background:rgba(13,17,23,.82);
+  backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--border);
+}
+.nav-inner{
+  max-width:1100px;
+  margin:0 auto;
+  padding:0 24px;
+  display:flex;
+  gap:6px;
+  overflow-x:auto;
+  scrollbar-width:none;
+}
+.nav-inner::-webkit-scrollbar{display:none;}
+nav a{
+  padding:16px 14px;
+  font-size:.88rem;
+  color:var(--muted);
+  white-space:nowrap;
+  border-bottom:2px solid transparent;
+  transition:.2s;
+  font-weight:500;
+}
+nav a:hover{color:var(--text);text-decoration:none;}
+nav a.active{color:var(--accent);border-bottom-color:var(--accent);}
+
+/* ============================================================
+   5. SECCIONES
+   ============================================================ */
+main{max-width:1100px;margin:0 auto;padding:0 24px 100px;}
+
+section{padding:70px 0 20px;}
+
+.section-head{margin-bottom:38px;}
+.eyebrow{
+  display:inline-block;
+  font-size:.75rem;
+  font-weight:700;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  color:var(--accent);
+  margin-bottom:10px;
+}
+.section-head h2{
+  font-size:clamp(1.6rem,4vw,2.4rem);
+  font-weight:800;
+  letter-spacing:-.7px;
+  color:#fff;
+  margin-bottom:12px;
+}
+.section-head p{color:var(--muted);max-width:680px;}
+
+/* Reveal on scroll */
+.reveal{opacity:0;transform:translateY(30px);transition:.7s cubic-bezier(.2,.8,.2,1);}
+.reveal.visible{opacity:1;transform:none;}
+
+/* ============================================================
+   6. TARJETAS
+   ============================================================ */
+.grid{display:grid;gap:18px;}
+.grid-2{grid-template-columns:repeat(auto-fit,minmax(300px,1fr));}
+.grid-3{grid-template-columns:repeat(auto-fit,minmax(260px,1fr));}
+
+.card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:26px;
+  transition:.3s;
+  position:relative;
+  overflow:hidden;
+}
+.card::before{
+  content:'';
+  position:absolute;inset:0;
+  background:linear-gradient(135deg, rgba(88,166,255,.08), transparent 60%);
+  opacity:0;transition:.3s;
+}
+.card:hover{transform:translateY(-4px);border-color:#484f58;box-shadow:var(--shadow);}
+.card:hover::before{opacity:1;}
+.card > *{position:relative;}
+.card .icon{
+  font-size:1.7rem;
+  margin-bottom:14px;
+  display:inline-block;
+}
+.card h3{font-size:1.05rem;color:#fff;margin-bottom:8px;font-weight:700;}
+.card p{font-size:.9rem;color:var(--muted);}
+
+/* ============================================================
+   7. COMANDOS
+   ============================================================ */
+.search-box{
+  position:relative;
+  margin-bottom:24px;
+  max-width:420px;
+}
+.search-box input{
+  width:100%;
+  padding:12px 16px 12px 42px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:10px;
+  color:var(--text);
+  font-family:inherit;
+  font-size:.9rem;
+  outline:none;
+  transition:.2s;
+}
+.search-box input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(88,166,255,.15);}
+.search-box::before{
+  content:'🔍';
+  position:absolute;
+  left:14px;top:50%;
+  transform:translateY(-50%);
+  font-size:.9rem;
+  opacity:.6;
+}
+
+.cmd-grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));}
+
+.cmd-card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:18px;
+  transition:.25s;
+}
+.cmd-card:hover{border-color:#484f58;background:var(--surface-2);}
+.cmd-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:12px;
+  margin-bottom:10px;
+}
+.cmd-code{
+  font-family:var(--mono);
+  font-size:.85rem;
+  color:var(--green);
+  background:#0d1117;
+  padding:8px 12px;
+  border-radius:8px;
+  border:1px solid var(--border);
+  word-break:break-word;
+  flex:1;
+  line-height:1.5;
+}
+.cmd-code .flag{color:var(--purple);}
+.cmd-code .arg{color:var(--orange);}
+
+.copy-btn{
+  background:transparent;
+  border:1px solid var(--border);
+  color:var(--muted);
+  border-radius:8px;
+  padding:6px 10px;
+  cursor:pointer;
+  font-size:.75rem;
+  transition:.2s;
+  font-family:inherit;
+  white-space:nowrap;
+}
+.copy-btn:hover{border-color:var(--accent);color:var(--accent);}
+.copy-btn.done{border-color:var(--green);color:var(--green);}
+
+.cmd-card p{font-size:.85rem;color:var(--muted);}
+
+.tag{
+  display:inline-block;
+  font-size:.68rem;
+  padding:2px 9px;
+  border-radius:999px;
+  background:rgba(88,166,255,.12);
+  color:var(--accent);
+  margin-bottom:8px;
+  font-weight:600;
+  letter-spacing:.4px;
+}
+.tag.g{background:rgba(63,185,80,.12);color:var(--green);}
+.tag.p{background:rgba(188,140,255,.12);color:var(--purple);}
+.tag.o{background:rgba(247,129,102,.12);color:var(--orange);}
+
+/* ============================================================
+   8. TERMINAL SIMULADA
+   ============================================================ */
+.terminal{
+  background:#010409;
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  overflow:hidden;
+  box-shadow:var(--shadow);
+  font-family:var(--mono);
+}
+.term-bar{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:11px 16px;
+  background:var(--surface);
+  border-bottom:1px solid var(--border);
+}
+.dot{width:12px;height:12px;border-radius:50%;display:inline-block;}
+.dot.r{background:#ff5f56;}
+.dot.y{background:#ffbd2e;}
+.dot.g{background:#27c93f;}
+.term-title{
+  margin-left:10px;
+  font-size:.78rem;
+  color:var(--muted);
+  font-family:var(--font);
+}
+.term-body{
+  padding:18px;
+  height:330px;
+  overflow-y:auto;
+  font-size:.84rem;
+  line-height:1.75;
+  scrollbar-width:thin;
+}
+.term-body::-webkit-scrollbar{width:8px;}
+.term-body::-webkit-scrollbar-thumb{background:#30363d;border-radius:8px;}
+.term-body .out{color:#8b949e;white-space:pre-wrap;word-break:break-word;}
+.term-body .ok{color:var(--green);white-space:pre-wrap;}
+.term-body .err{color:#f85149;white-space:pre-wrap;}
+.term-body .info{color:var(--accent);white-space:pre-wrap;}
+.term-body .warn{color:var(--yellow);white-space:pre-wrap;}
+.term-body .echo{color:#c9d1d9;white-space:pre-wrap;}
+.term-body .echo::before{content:'$ ';color:var(--green);}
+
+.term-input-row{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:12px 18px;
+  border-top:1px solid var(--border);
+  background:#0d1117;
+}
+.prompt{color:var(--green);font-size:.84rem;white-space:nowrap;}
+.term-input-row input{
+  flex:1;
+  background:transparent;
+  border:none;
+  outline:none;
+  color:var(--text);
+  font-family:var(--mono);
+  font-size:.84rem;
+  caret-color:var(--green);
+}
+
+.hint{
+  font-size:.8rem;
+  color:var(--muted);
+  margin-top:14px;
+  padding:12px 16px;
+  background:var(--surface);
+  border-left:3px solid var(--accent);
+  border-radius:0 8px 8px 0;
+}
+.hint code{
+  font-family:var(--mono);
+  background:#0d1117;
+  padding:1px 6px;
+  border-radius:4px;
+  color:var(--green);
+  font-size:.85em;
+}
+
+/* ============================================================
+   9. VISUALIZADOR DE RAMAS
+   ============================================================ */
+.viz-wrap{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:24px;
+}
+.viz-svg-box{
+  background:#0d1117;
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:10px;
+  overflow-x:auto;
+}
+#vizSvg{width:100%;min-width:520px;height:auto;display:block;}
+.viz-controls{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px;align-items:center;}
+.viz-desc{
+  margin-top:16px;
+  padding:14px 18px;
+  background:var(--surface-2);
+  border-radius:10px;
+  border-left:3px solid var(--purple);
+  font-size:.88rem;
+  color:var(--text);
+  min-height:56px;
+}
+.viz-desc b{color:var(--purple);}
+.legend{display:flex;gap:18px;flex-wrap:wrap;font-size:.78rem;color:var(--muted);margin-top:14px;}
+.legend span{display:flex;align-items:center;gap:6px;}
+.legend i{width:11px;height:11px;border-radius:50%;display:inline-block;}
+
+/* ============================================================
+   10. FLUJO / PASOS
+   ============================================================ */
+.steps{position:relative;padding-left:44px;}
+.steps::before{
+  content:'';
+  position:absolute;
+  left:15px;top:8px;bottom:8px;
+  width:2px;
+  background:linear-gradient(180deg,var(--accent),var(--purple),var(--green));
+  opacity:.35;
+}
+.step{position:relative;margin-bottom:30px;}
+.step::before{
+  content:attr(data-n);
+  position:absolute;
+  left:-44px;top:2px;
+  width:32px;height:32px;
+  border-radius:50%;
+  background:var(--surface);
+  border:2px solid var(--accent);
+  color:var(--accent);
+  display:flex;align-items:center;justify-content:center;
+  font-size:.8rem;font-weight:700;
+}
+.step h4{color:#fff;font-size:1rem;margin-bottom:6px;}
+.step p{font-size:.88rem;color:var(--muted);margin-bottom:10px;}
+
+/* ============================================================
+   11. GALERÍA
+   ============================================================ */
+.gallery{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));}
+.gallery figure{
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  overflow:hidden;
+  background:var(--surface);
+  transition:.3s;
+}
+.gallery figure:hover{transform:translateY(-5px);border-color:#484f58;box-shadow:var(--shadow);}
+.gallery img{
+  width:100%;
+  height:165px;
+  object-fit:cover;
+  transition:.5s;
+  background:#0d1117;
+}
+.gallery figure:hover img{transform:scale(1.06);}
+.gallery figcaption{
+  padding:12px 16px;
+  font-size:.83rem;
+  color:var(--muted);
+}
+.gallery figcaption b{color:var(--text);display:block;margin-bottom:2px;font-size:.88rem;}
+
+/* ============================================================
+   12. QUIZ
+   ============================================================ */
+.quiz{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:28px;
+}
+.q{margin-bottom:26px;padding-bottom:24px;border-bottom:1px solid var(--border);}
+.q:last-of-type{border-bottom:none;}
+.q p.qtext{font-weight:600;color:#fff;margin-bottom:14px;font-size:.95rem;}
+.opt{
+  display:flex;
+  align-items:center;
+  gap:11px;
+  padding:12px 16px;
+  border:1px solid var(--border);
+  border-radius:9px;
+  margin-bottom:9px;
+  cursor:pointer;
+  transition:.2s;
+  font-size:.88rem;
+  background:var(--bg);
+}
+.opt:hover{border-color:var(--accent);background:var(--surface-2);}
+.opt input{accent-color:var(--accent);cursor:pointer;width:16px;height:16px;flex-shrink:0;}
+.opt.correct{border-color:var(--green);background:rgba(63,185,80,.1);}
+.opt.wrong{border-color:#f85149;background:rgba(248,81,73,.1);}
+.opt.correct::after{content:'✓';margin-left:auto;color:var(--green);font-weight:700;}
+.opt.wrong::after{content:'✕';margin-left:auto;color:#f85149;font-weight:700;}
+
+#quizResult{
+  margin-top:20px;
+  padding:20px;
+  border-radius:10px;
+  text-align:center;
+  font-weight:600;
+  display:none;
+  animation:fadeUp .5s ease both;
+}
+#quizResult.show{display:block;}
+
+/* ============================================================
+   13. FAQ / ACORDEÓN
+   ============================================================ */
+.faq-item{
+  border:1px solid var(--border);
+  border-radius:10px;
+  margin-bottom:11px;
+  background:var(--surface);
+  overflow:hidden;
+}
+.faq-q{
+  width:100%;
+  padding:18px 22px;
+  background:transparent;
+  border:none;
+  color:var(--text);
+  font-family:inherit;
+  font-size:.93rem;
+  font-weight:600;
+  text-align:left;
+  cursor:pointer;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:14px;
+  transition:.2s;
+}
+.faq-q:hover{background:var(--surface-2);color:#fff;}
+.faq-q .arrow{transition:.3s;color:var(--accent);flex-shrink:0;font-size:1.2rem;}
+.faq-item.open .arrow{transform:rotate(45deg);}
+.faq-a{
+  max-height:0;
+  overflow:hidden;
+  transition:max-height .35s ease, padding .35s ease;
+  padding:0 22px;
+  font-size:.87rem;
+  color:var(--muted);
+}
+.faq-item.open .faq-a{max-height:400px;padding:0 22px 20px;}
+
+/* ============================================================
+   14. FOOTER
+   ============================================================ */
+footer{
+  border-top:1px solid var(--border);
+  padding:44px 24px;
+  text-align:center;
+  color:var(--muted);
+  font-size:.84rem;
+}
+footer .social{display:flex;gap:14px;justify-content:center;margin-bottom:18px;flex-wrap:wrap;}
+footer .social a{
+  padding:9px 18px;
+  border:1px solid var(--border);
+  border-radius:9px;
+  font-size:.83rem;
+  transition:.25s;
+}
+footer .social a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;transform:translateY(-2px);}
+
+/* ============================================================
+   15. UTILIDADES
+   ============================================================ */
+.toast{
+  position:fixed;
+  bottom:30px;left:50%;
+  transform:translate(-50%,120px);
+  background:var(--green);
+  color:#fff;
+  padding:12px 24px;
+  border-radius:10px;
+  font-size:.88rem;
+  font-weight:600;
+  box-shadow:0 8px 30px rgba(0,0,0,.5);
+  transition:.35s cubic-bezier(.2,.8,.2,1);
+  z-index:999;
+}
+.toast.show{transform:translate(-50%,0);}
+
+/* ============================================================
+   16. RESPONSIVE
+   ============================================================ */
+@media(max-width:640px){
+  .hero{padding:70px 18px 50px;}
+  main{padding:0 18px 70px;}
+  .stats{gap:28px;}
+  .stat b{font-size:1.5rem;}
+  .term-body{height:260px;}
+  .steps{padding-left:38px;}
+  .quiz{padding:20px;}
+}
+</style>
+</head>
+
+<body>
+
+<!-- ============ FONDOS DECORATIVOS ============ -->
+<div class="bg-grid"></div>
+<div class="bg-glow glow-1"></div>
+<div class="bg-glow glow-2"></div>
+
+<!-- ============ HERO ============ -->
+<header class="hero">
+  <div class="badge">
+    <span class="pulse"></span>
+    Guía interactiva · 100% práctica
+  </div>
+  <h1>Aprende <span class="grad">Git y GitHub</span><br>desde cero</h1>
+  <p>
+    Una guía interactiva con terminal simulada, visualizador de ramas, quiz y
+    todo lo que necesitas para dominar el control de versiones más usado del mundo.
+  </p>
+  <div class="hero-btns">
+    <a href="#terminal" class="btn btn-primary">🚀 Probar la terminal</a>
+    <a href="#intro" class="btn">📖 Empezar la guía</a>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><b>100M+</b><span>Repositorios</span></div>
+    <div class="stat"><b>4M+</b><span>Organizaciones</span></div>
+    <div class="stat"><b>90%</b><span>De devs lo usan</span></div>
+  </div>
+</header>
+
+<!-- ============ NAVEGACIÓN ============ -->
+<nav id="nav">
+  <div class="nav-inner">
+    <a href="#intro" class="active">¿Qué es?</a>
+    <a href="#comandos">Comandos</a>
+    <a href="#terminal">Terminal</a>
+    <a href="#ramas">Ramas</a>
+    <a href="#flujo">Flujo de trabajo</a>
+    <a href="#pages">GitHub Pages</a>
+    <a href="#galeria">Galería</a>
+    <a href="#quiz">Quiz</a>
+    <a href="#faq">FAQ</a>
+  </div>
+</nav>
+
+<main>
+
+  <!-- ==========================================================
+       SECCIÓN 1: INTRODUCCIÓN
+       ========================================================== -->
+  <section id="intro" class="reveal">
+    <div class="section-head">
+      <span class="eyebrow">Fundamentos</span>
+      <h2>¿Qué es Git y qué es GitHub?</h2>
+      <p>Dos cosas diferentes que casi siempre van juntas. Entender la diferencia es el primer paso.</p>
+    </div>
+
+    <div class="grid grid-2">
+      <div class="card">
+        <div class="icon">🌳</div>
+        <h3>Git — el sistema</h3>
+        <p>
+          Git es un <b>sistema de control de versiones distribuido</b> que se instala
+          en tu ordenador. Guarda "fotografías" (commits) de tu proyecto para que
+          puedas volver atrás, comparar cambios y trabajar en paralelo sin miedo
+          a romper nada. Funciona <b>sin conexión a internet</b>.
+        </p>
+      </div>
+
+      <div class="card">
+        <div class="icon">☁️</div>
+        <h3>GitHub — la plataforma</h3>
+        <p>
+          GitHub es una <b>plataforma en la nube</b> (propiedad de Microsoft) que
+          aloja repositorios Git. Añade colaboración, issues, Pull Requests,
+          Actions (CI/CD), GitHub Pages y una enorme comunidad. Existen
+          alternativas: GitLab, Bitbucket, Codeberg…
+        </p>
+      </div>
+    </div>
+
+    <div class="hint" style="margin-top:22px;">
+      💡 <b>Analogía rápida:</b> Git es como el <i>cuaderno de bocetos</i> que guardas en tu mochila.
+      GitHub es la <i>galería online</i> donde expones esos bocetos y otros artistas te dejan comentarios.
+    </div>
+  </section>
+
+  <!-- ==========================================================
+       SECCIÓN 2: COMANDOS
+       ========================================================== -->
+  <section id="comandos" class="reveal">
+    <div class="section-head">
+      <span class="eyebrow">Chuleta</span>
+      <h2>Comandos esenciales de Git</h2>
+      <p>Busca, copia y pega. Todos los comandos que usarás el 90% del tiempo.</p>
+    </div>
+
+    <div class="search-box">
+      <input type="text" id="cmdSearch" placeholder="Buscar comando... (ej: commit, branch, push)">
+    </div>
+
+    <div class="cmd-grid" id="cmdGrid">
+      <!-- Se genera con JavaScript -->
+    </div>
+  </section>
+
+  <!-- ==========================================================
+       SECCIÓN 3: TERMINAL SIMULADA
+       ========================================================== -->
+  <section id="terminal" class="reveal">
+    <div class="section-head">
+      <span class="eyebrow">Laboratorio</span>
+      <h2>Terminal Git simulada</h2>
+      <p>Practica sin miedo. Escribe comandos reales y observa qué ocurre. Nada se rompe.</p>
+    </div>
+
+    <div class="terminal">
+      <div class="term-bar">
+        <span class="dot r"></span>
+        <span class="dot y"></span>
+        <span class="dot g"></span>
+        <span class="term-title">terminal — bash — git-simulator</span>
+      </div>
+      <div class="term-body" id="termBody"></div>
+      <div class="term-input-row">
+        <span class="prompt" id="promptLabel">usuario@github:~/proyecto$</span>
+        <input type="text" id="termInput" autocomplete="off" spellcheck="false" placeholder="escribe 'help' y pulsa Enter">
+      </div>
+    </div>
+
+    <div class="hint">
+      Prueba con: <code>help</code> · <code>git init</code> · <code>git status</code> ·
+      <code>git add .</code> · <code>git commit -m "primer commit"</code> · <code>git log</code> ·
+      <code>git branch</code> · <code>clear</code>
+    </div>
+  </section>
+
+  <!-- ==========================================================
+       SECCIÓN 4: RAMAS
+       ========================================================== -->
+  <section id="ramas" class="reveal">
+    <div class="section-head">
+      <span class="eyebrow">Visual</span>
+      <h2>¿Cómo funcionan las ramas?</h2>
+      <p>Avanza paso a paso y observa cómo nacen, crecen y se fusionan las ramas.</p>
+    </div>
+
+    <div class="viz-wrap">
+      <div class="viz-svg-box">
+        <svg id="vizSvg" viewBox="0 0 520 180" xmlns="http://www.w3.org/2000/svg">
+          <!-- Se dibuja con JavaScript -->
+        </svg>
+      </div>
+
+      <div class="legend">
+        <span><i style="background:#58a6ff"></i> Rama main</span>
+        <span><i style="background:#bc8cff"></i> Rama feature</span>
+        <span><i style="background:#3fb950"></i> Commit de merge</span>
+      </div>
+
+      <div class="viz-controls">
+        <button class="btn btn-primary" id="vizNext">▶ Siguiente paso</button>
+        <button class="btn" id="vizReset">↺ Reiniciar</button>
+        <span style="font-size:.82rem;color:var(--muted);margin-left:auto;">
+          Paso <b id="vizStepNum">1</b> / 5
+        </span>
+      </div>
+
+      <div class="viz-desc" id="vizDesc"></div>
+    </div>
+  </section>
+
+  <!-- ==========================================================
+       SECCIÓN 5: FLUJO DE TRABAJO
+       ========================================================== -->
+  <section id="flujo" class="reveal">
+    <div class="section-head">
+      <span class="eyebrow">Metodología</span>
+      <h2>Flujo de trabajo con Pull Requests</h2>
+      <p>El ciclo profesional que usan los equipos de todo el mundo.</p>
+    </div>
+
+    <div class="steps">
+      <div class="step" data-n="1">
+        <h4>Fork o clonar el repositorio</h4>
+        <p>Creas tu propia copia del proyecto en tu cuenta o lo descargas a tu equipo.</p>
+        <div class="cmd-code">git clone https://github.com/usuario/proyecto.git</div>
+      </div>
+
+      <div class="step" data-n="2">
+        <h4>Crear una rama descriptiva</h4>
+        <p>Nunca trabajes directamente sobre <code>main</code>. Usa nombres como <code>feat/login</code> o <code>fix/header</code>.</p>
+        <div class="cmd-code">git checkout -b feat/mi-nueva-funcion</div>
+      </div>
+
+      <div class="step" data-n="3">
+        <h4>Hacer cambios y commitear</h4>
+        <p>Añade archivos al staging area y crea commits pequeños con mensajes claros.</p>
+        <div class="cmd-code">git add . &amp;&amp; git commit -m "feat: añade formulario de login"</div>
+      </div>
+
+      <div class="step" data-n="4">
+        <h4>Subir la rama a GitHub</h4>
+        <p>Envías tu rama al repositorio remoto para que otros puedan verla.</p>
+        <div class="cmd-code">git push -u origin feat/mi-nueva-funcion</div>
+      </div>
+
+      <div class="step" data-n="5">
+        <h4>Abrir un Pull Request</h4>
+        <p>En GitHub pulsas "Compare &amp; pull request", describes tus cambios y pides revisión.</p>
+      </div>
+
+      <div class="step" data-n="6">
+        <h4>Revisión y merge</h4>
+        <p>El equipo comenta, sugiere cambios y, cuando todo está bien, se fusiona con <code>main</code>.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================
+       SECCIÓN 6: GITHUB PAGES
+       ========================================================== -->
+  <section id="pages" class="reveal">
+    <div class="section-head">
+      <span class="eyebrow">Publicar</span>
+      <h2>Publica tu web gratis con GitHub Pages</h2>
+      <p>Convierte cualquier repositorio en un sitio web público en menos de 2 minutos.</p>
+    </div>
+
+    <div class="grid grid-3">
+      <div class="card">
+        <span class="tag">Paso 01</span>
+        <h3>Crea el repositorio</h3>
+        <p>Sube tu proyecto. El archivo principal <b>debe llamarse <code>index.html</code></b> y estar en la raíz.</p>
+      </div>
+      <div class="card">
+        <span class="tag g">Paso 02</span>
+        <h3>Activa Pages</h3>
+        <p>Ve a <b>Settings → Pages</b>. En "Source" selecciona la rama <code>main</code> y la carpeta <code>/root</code>. Guarda.</p>
+      </div>
+      <div class="card">
+        <span class="tag p">Paso 03</span>
+        <h3>¡Listo!</h3>
+        <p>En 1-2 minutos tu web estará en <code>https://tuusuario.github.io/turepositorio/</code></p>
+      </div>
+    </div>
+
+    <div class="hint" style="margin-top:22px;">
+      ⚡ <b>Truco:</b> si nombras el repositorio <code>tuusuario.github.io</code>, tu web quedará
+      directamente en la raíz: <code>https://tuusuario.github.io</code>. Ideal para tu portafolio.
+    </div>
+  </section>
+
+  <!-- ==========================================================
+       SECCIÓN 7: GALERÍA DE IMÁGENES
+       ========================================================== -->
+  <section id="galeria" class="reveal">
+    <div class="section-head">
+      <span class="eyebrow">Recursos visuales</span>
+      <h2>Galería</h2>
+      <p>
+        Ejemplo de galería con imágenes remotas. Sustituye los <code>src</code> por tus
+        propias imágenes (locales o URLs) cuando quieras personalizarla.
+      </p>
+    </div>
+
+    <div class="gallery">
+      <figure>
+        <img src="https://picsum.photos/seed/github1/500/330" alt="Flujo de trabajo con Git" loading="lazy">
+        <figcaption><b>Flujo de trabajo</b>Ramas, commits y merges en equipo.</figcaption>
+      </figure>
+      <figure>
+        <img src="https://picsum.photos/seed/github2/500/330" alt="Colaboración open source" loading="lazy">
+        <figcaption><b>Open Source</b>Miles de proyectos donde colaborar hoy mismo.</figcaption>
+      </figure>
+      <figure>
+        <img src="https://picsum.photos/seed/github3/500/330" alt="CI/CD con GitHub Actions" loading="lazy">
+        <figcaption><b>GitHub Actions</b>Automatiza tests y despliegues con YAML.</figcaption>
+      </figure>
+      <figure>
+        <img src="https://picsum.photos/seed/github4/500/330" alt="Portafolio con GitHub Pages" loading="lazy">
+        <figcaption><b>GitHub Pages</b>Tu portafolio online, gratis y para siempre.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ==========================================================
+       SECCIÓN 8: QUIZ
+       ========================================================== -->
+  <section id="quiz" class="reveal">
+    <div class="section-head">
+      <span class="eyebrow">Evaluación</span>
+      <h2>Pon a prueba lo aprendido</h2>
+      <p>6 preguntas rápidas. Selecciona una respuesta por pregunta y pulsa "Corregir".</p>
+    </div>
+
+    <div class="quiz" id="quizBox">
+      <!-- Se genera con JavaScript -->
+    </div>
+
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:20px;">
+      <button class="btn btn-primary" id="quizCheck">✓ Corregir respuestas</button>
+      <button class="btn" id="quizReset">↺ Reiniciar quiz</button>
+    </div>
+
+    <div id="quizResult"></div>
+  </section>
+
+  <!-- ==========================================================
+       SECCIÓN 9: FAQ
+       ========================================================== -->
+  <section id="faq" class="reveal">
+    <div class="section-head">
+      <span class="eyebrow">Dudas frecuentes</span>
+      <h2>Preguntas frecuentes</h2>
+    </div>
+
+    <div id="faqBox">
+      <!-- Se genera con JavaScript -->
+    </div>
+  </section>
+
+</main>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="social">
+    <a href="https://github.com" target="_blank" rel="noopener">🐙 GitHub</a>
+    <a href="https://git-scm.com/doc" target="_blank" rel="noopener">📚 Docs de Git</a>
+    <a href="https://docs.github.com" target="_blank" rel="noopener">📘 Docs de GitHub</a>
+    <a href="https://skills.github.com" target="_blank" rel="noopener">🎓 GitHub Skills</a>
+  </div>
+  <p>Hecho con 💙 para aprender Git y GitHub · Copia, modifica y comparte libremente.</p>
+  <p style="margin-top:8px;font-size:.78rem;opacity:.6;">© <span id="year"></span> · Proyecto educativo open source</p>
+</footer>
+
+<!-- Toast de notificación -->
+<div class="toast" id="toast">¡Copiado!</div>
+
+<script>
+/* ============================================================
+   UTILIDADES GENERALES
+   ============================================================ */
+const $  = (sel, ctx = document) => ctx.querySelector(sel);
+const $$ = (sel, ctx = document) => [...ctx.querySelectorAll(sel)];
+
+// Año dinámico en el footer
+$('#year').textContent = new Date().getFullYear();
+
+// Notificación toast
+let toastTimer;
+function showToast(msg = '¡Copiado!') {
+  const t = $('#toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+// Copiar al portapapeles (con fallback)
+async function copyText(text, btn) {
+  try {
+    await navigator.clipboard.writeText(text);
+  } catch {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+  }
+  if (btn) {
+    btn.classList.add('done');
+    btn.textContent = '✓ Copiado';
+    setTimeout(() => {
+      btn.classList.remove('done');
+      btn.textContent = 'Copiar';
+    }, 1600);
+  }
+  showToast('¡Comando copiado!');
+}
+
+/* ============================================================
+   ANIMACIÓN DE APARICIÓN AL HACER SCROLL
+   ============================================================ */
+const revealObserver = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      revealObserver.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.08 });
+
+$$('.reveal').forEach(el => revealObserver.observe(el));
+
+/* ============================================================
+   SCROLL SPY — resaltar enlace activo del menú
+   ============================================================ */
+const sections = $$('main section[id]');
+const navLinks = $$('nav a');
+
+const spyObserver = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      navLinks.forEach(a => {
+        a.classList.toggle('active', a.getAttribute('href') === '#' + entry.target.id);
+      });
+    }
+  });
+}, { rootMargin: '-25% 0px -65% 0px' });
+
+sections.forEach(s => spyObserver.observe(s));
+
+/* ============================================================
+   SECCIÓN COMANDOS — datos y render
+   ============================================================ */
+const COMMANDS = [
+  { cat:'Config',  tag:'',   cmd:'git config --global user.name "Tu Nombre"', desc:'Configura tu nombre de autor. Solo se hace una vez.' },
+  { cat:'Config',  tag:'',   cmd:'git config --global user.email "tu@email.com"', desc:'Configura tu correo. Debe coincidir con el de GitHub.' },
+  { cat:'Inicio',  tag:'g',  cmd:'git init', desc:'Inicializa un repositorio Git en la carpeta actual (crea la carpeta oculta .git).' },
+  { cat:'Inicio',  tag:'g',  cmd:'git clone <url>', desc:'Descarga una copia completa de un repositorio remoto a tu equipo.' },
+  { cat:'Estado',  tag:'',   cmd:'git status', desc:'Muestra qué archivos han cambiado y cuáles están listos para commit.' },
+  { cat:'Estado',  tag:'',   cmd:'git log --oneline --graph', desc:'Historial de commits resumido en una línea, con gráfico de ramas.' },
+  { cat:'Estado',  tag:'',   cmd:'git diff', desc:'Muestra las diferencias línea a línea de los cambios sin preparar.' },
+  { cat:'Cambios', tag:'p',  cmd:'git add .', desc:'Añade TODOS los archivos modificados al área de preparación (staging).' },
+  { cat:'Cambios', tag:'p',  cmd:'git add archivo.txt', desc:'Añade un archivo concreto al staging area.' },
+  { cat:'Cambios', tag:'p',  cmd:'git commit -m "mensaje"', desc:'Guarda los cambios preparados como una nueva "fotografía" del proyecto.' },
+  { cat:'Cambios', tag:'p',  cmd:'git commit --amend', desc:'Modifica el último commit (mensaje o contenido). Úsalo con cuidado.' },
+  { cat:'Cambios', tag:'o',  cmd:'git stash', desc:'Guarda temporalmente tus cambios sin commitear para cambiar de rama limpiamente.' },
+  { cat:'Cambios', tag:'o',  cmd:'git restore archivo.txt', desc:'Descarta los cambios locales de un archivo (¡irreversible!).' },
+  { cat:'Remoto',  tag:'',   cmd:'git remote add origin <url>', desc:'Vincula tu repositorio local con uno remoto en GitHub.' },
+  { cat:'Remoto',  tag:'',   cmd:'git push -u origin main', desc:'Sube tus commits al repositorio remoto por primera vez.' },
+  { cat:'Remoto',  tag:'',   cmd:'git push', desc:'Sube los commits posteriores (una vez configurado el upstream).' },
+  { cat:'Remoto',  tag:'',   cmd:'git pull', desc:'Descarga y fusiona los cambios del remoto en tu rama actual.' },
+  { cat:'Remoto',  tag:'',   cmd:'git fetch', desc:'Descarga cambios del remoto SIN fusionarlos. Útil para revisar antes.' },
+  { cat:'Ramas',   tag:'g',  cmd:'git branch', desc:'Lista todas las ramas locales. La actual aparece con un asterisco.' },
+  { cat:'Ramas',   tag:'g',  cmd:'git checkout -b nueva-rama', desc:'Crea una rama nueva Y cambia a ella en un solo paso.' },
+  { cat:'Ramas',   tag:'g',  cmd:'git switch -c nueva-rama', desc:'Alternativa moderna a checkout -b (Git 2.23+).' },
+  { cat:'Ramas',   tag:'g',  cmd:'git checkout main', desc:'Cambia a la rama main.' },
+  { cat:'Ramas',   tag:'g',  cmd:'git merge rama', desc:'Fusiona la rama indicada dentro de la rama actual.' },
+  { cat:'Ramas',   tag:'g',  cmd:'git branch -d rama', desc:'Elimina una rama local ya fusionada.' },
+  { cat:'Deshacer',tag:'o',  cmd:'git reset --soft HEAD~1', desc:'Deshace el último commit pero CONSERVA los cambios en staging.' },
+  { cat:'Deshacer',tag:'o',  cmd:'git reset --hard HEAD~1', desc:'Deshace el último commit y BORRA los cambios. ⚠️ Peligroso.' },
+  { cat:'Deshacer',tag:'o',  cmd:'git revert <hash>', desc:'Crea un commit nuevo que revierte otro. Seguro en ramas compartidas.' },
+];
+
+// Convierte el comando en HTML con resaltado simple
+function highlight(cmd) {
+  let html = cmd
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+  // Flags (--algo o -x)
+  html = html.replace(/(--?[a-zA-Z][\w-]*)/g, '<span class="flag">$1</span>');
+  // Argumentos entre comillas o <...>
+  html = html.replace(/(&quot;.*?&quot;|"[^"]*"|&lt;[^&]*?&gt;)/g, '<span class="arg">$1</span>');
+  return html;
+}
+
+function renderCommands(filter = '') {
+  const grid = $('#cmdGrid');
+  const f = filter.trim().toLowerCase();
+
+  const list = COMMANDS.filter(c =>
+    !f || c.cmd.toLowerCase().includes(f) ||
+    c.desc.toLowerCase().includes(f) ||
+    c.cat.toLowerCase().includes(f)
+  );
+
+  if (!list.length) {
+    grid.innerHTML = `<div class="card" style="grid-column:1/-1;text-align:center;color:var(--muted);">
+      🔍 No se encontraron comandos para "<b>${filter}</b>"
+    </div>`;
+    return;
+  }
+
+  grid.innerHTML = list.map(c => `
+    <div class="cmd-card">
+      <span class="tag ${c.tag}">${c.cat}</span>
+      <div class="cmd-top">
+        <code class="cmd-code">${highlight(c.cmd)}</code>
+        <button class="copy-btn" data-copy="${c.cmd.replace(/"/g, '&quot;')}">Copiar</button>
+      </div>
+      <p>${c.desc}</p>
+    </div>
+  `).join('');
+}
+
+renderCommands();
+
+// Búsqueda
+$('#cmdSearch').addEventListener('input', e => renderCommands(e.target.value));
+
+// Delegación de eventos para los botones copiar
+document.addEventListener('click', e => {
+  const btn = e.target.closest('.copy-btn');
+  if (btn) copyText(btn.dataset.copy, btn);
+});
+
+/* ============================================================
+   TERMINAL SIMULADA
+   ============================================================ */
+const termBody  = $('#termBody');
+const termInput = $('#termInput');
+const promptLabel = $('#promptLabel');
+
+// Estado del repositorio simulado
+let repo = crearEstadoInicial();
+
+function crearEstadoInicial() {
+  return {
+    initialized: false,
+    files: [],
+    staged: [],
+    commits: [],
+    branch: 'main',
+    branches: [],
+    remote: null,
+    dirty: []
+  };
+}
+
+function print(text, cls = 'out') {
+  const div = document.createElement('div');
+  div.className = cls;
+  div.textContent = text;
+  termBody.appendChild(div);
+  termBody.scrollTop = termBody.scrollHeight;
+}
+
+function printHTML(html, cls = 'out') {
+  const div = document.createElement('div');
+  div.className = cls;
+  div.innerHTML = html;
+  termBody.appendChild(div);
+  termBody.scrollTop = termBody.scrollHeight;
+}
+
+function actualizarPrompt() {
+  const rama = repo.initialized ? repo.branch : '';
+  promptLabel.textContent = repo.initialized
+    ? `usuario@github:~/proyecto (${rama})$`
+    : 'usuario@github:~/proyecto$';
+}
+
+// Mensaje de bienvenida
+function bienvenida() {
+  printHTML('<span class="info">╔══════════════════════════════════════════════╗</span>');
+  printHTML('<span class="info">║   🐙  GIT SIMULATOR — Terminal interactiva   ║</span>');
+  printHTML('<span class="info">╚══════════════════════════════════════════════╝</span>');
+  print('');
+  print('Escribe "help" para ver los comandos disponibles.', 'warn');
+  print('Nada de lo que hagas aquí afecta a archivos reales. ¡Experimenta!', 'out');
+  print('');
+}
+bienvenida();
+
+/* -------- Procesador de comandos -------- */
+function ejecutar(raw) {
+  const input = raw.trim();
+  if (!input) return;
+
+  // Eco del comando escrito
+  printHTML(`<span style="color:#3fb950">$</span> ${input.replace(/</g,'&lt;')}`, 'echo');
+
+  const parts = input.split(/\s+/);
+  const cmd = parts[0];
+  const sub = parts[1] || '';
+
+  // --- help ---
+  if (cmd === 'help') {
+    printHTML('<span class="info">Comandos disponibles en este simulador:</span>');
+    print('  git init                          → crea el repositorio');
+    print('  git status                        → estado de archivos');
+    print('  git add . | git add <archivo>     → preparar cambios');
+    print('  git commit -m "mensaje"           → crear commit');
+    print('  git log                           → historial');
+    print('  git branch                        → listar ramas');
+    print('  git branch <nombre>               → crear rama');
+    print('  git checkout -b <nombre>          → crear y cambiar de rama');
+    print('  git checkout <nombre>             → cambiar de rama');
+    print('  git merge <rama>                  → fusionar rama');
+    print('  git remote add origin <url>       → vincular remoto');
+    print('  git push                          → subir cambios');
+    print('  git pull                          → bajar cambios');
+    print('  ls                                → listar archivos');
+    print('  touch <archivo>                   → crear archivo');
+    print('  clear                             → limpiar pantalla');
+    print('');
+    return;
+  }
+
+  // --- clear ---
+  if (cmd === 'clear') {
+    termBody.innerHTML = '';
+    return;
+  }
+
+  // --- ls ---
+  if (cmd === 'ls') {
+    if (!repo.initialized || !repo.files.length) {
+      print('(carpeta vacía)', 'out');
+    } else {
+      print(repo.files.join('   '), 'out');
+    }
+    return;
+  }
+
+  // --- touch ---
+  if (cmd === 'touch') {
+    const f = parts[1];
+    if (!f) { print('touch: falta el nombre del archivo', 'err'); return; }
+    if (!repo.files.includes(f)) repo.files.push(f);
+    if (!repo.dirty.includes(f)) repo.dirty.push(f);
+    print(`Archivo "${f}" creado.`, 'ok');
+    return;
+  }
+
+  // --- Cualquier cosa que no sea git ---
+  if (cmd !== 'git') {
+    print(`bash: ${cmd}: command not found`, 'err');
+    return;
+  }
+
+  /* ---------- GIT INIT ---------- */
+  if (sub === 'init') {
+    if (repo.initialized) {
+      print('Reinitialized existing Git repository in /home/usuario/proyecto/.git/', 'warn');
+      return;
+    }
+    repo = crearEstadoInicial();
+    repo.initialized = true;
+    repo.branch = 'main';
+    repo.branches = ['main'];
+    repo.files = ['README.md', 'index.html'];
+    repo.dirty = ['README.md', 'index.html'];
+    print('Initialized empty Git repository in /home/usuario/proyecto/.git/', 'ok');
+    actualizarPrompt();
+    return;
+  }
+
+  // A partir de aquí, todo requiere repo inicializado
+  if (!repo.initialized) {
+    print('fatal: not a git repository (or any of the parent directories): .git', 'err');
+    print('Pista: ejecuta primero "git init"', 'warn');
+    return;
+  }
+
+  /* ---------- GIT STATUS ---------- */
+  if (sub === 'status') {
+    print(`On branch ${repo.branch}`, 'out');
+    if (!repo.commits.length) {
+      print('\nNo commits yet\n', 'out');
+    }
+    if (repo.dirty.length) {
+      print('Untracked files:', 'err');
+      print('  (use "git add <file>..." to include in what will be committed)\n', 'out');
+      repo.dirty.forEach(f => print('        ' + f, 'err'));
+      print('');
+    }
+    if (repo.staged.length) {
+      print('Changes to be committed:', 'ok');
+      print('  (use "git restore --staged <file>..." to unstage)\n', 'out');
+      repo.staged.forEach(f => print('        new file:   ' + f, 'ok'));
+      print('');
+    }
+    if (!repo.dirty.length && !repo.staged.length) {
+      print('nothing to commit, working tree clean', 'out');
+    }
+    return;
+  }
+
+  /* ---------- GIT ADD ---------- */
+  if (sub === 'add') {
+    const target = parts[2];
+    if (!target) { print('Nothing specified, nothing added.', 'warn'); return; }
+
+    if (target === '.' || target === '-A' || target === '--all') {
+      if (!repo.dirty.length) { print('No hay cambios que añadir.', 'warn'); return; }
+      repo.dirty.forEach(f => { if (!repo.staged.includes(f)) repo.staged.push(f); });
+      const n = repo.dirty.length;
+      repo.dirty = [];
+      print(`${n} archivo(s) añadido(s) al staging area.`, 'ok');
+    } else if (repo.files.includes(target)) {
+      if (!repo.staged.includes(target)) repo.staged.push(target);
+      repo.dirty = repo.dirty.filter(f => f !== target);
+      print(`Añadido: ${target}`, 'ok');
+    } else {
+      print(`fatal: pathspec '${target}' did not match any files`, 'err');
+    }
+    return;
+  }
+
+  /* ---------- GIT COMMIT ---------- */
+  if (sub === 'commit') {
+    const mIndex = parts.indexOf('-m');
+    let mensaje = null;
+
+    if (mIndex !== -1) {
+      mensaje = parts.slice(mIndex + 1).join(' ').replace(/^["']|["']$/g, '');
+    } else {
+      const match = input.match(/-m\s+["'](.+)["']/);
+      if (match) mensaje = match[1];
+    }
+
+    if (!mensaje) {
+      print('error: falta el mensaje. Usa: git commit -m "tu mensaje"', 'err');
+      return;
+    }
+    if (!repo.staged.length) {
+      print('nothing added to commit but untracked files present', 'warn');
+      print('Pista: usa "git add ." antes de commitear.', 'warn');
+      return;
+    }
+
+    const hash = Math.random().toString(16).slice(2, 9);
+    repo.commits.push({
+      hash,
+      msg: mensaje,
+      branch: repo.branch,
+      files: [...repo.staged]
+    });
+    const n = repo.staged.length;
+    repo.staged = [];
+
+    print(`[${repo.branch} ${hash}] ${mensaje}`, 'ok');
+    print(` ${n} file(s) changed`, 'out');
+    return;
+  }
+
+  /* ---------- GIT LOG ---------- */
+  if (sub === 'log') {
+    if (!repo.commits.length) {
+      print('fatal: your current branch does not have any commits yet', 'err');
+      return;
+    }
+    printHTML('<span class="info">Historial de commits:</span>');
+    [...repo.commits].reverse().forEach(c => {
+      printHTML(
+        `<span style="color:#d29922">commit ${c.hash}</span>  ` +
+        `<span style="color:#8b949e">(${c.branch})</span>\n` +
+        `<span style="color:#c9d1d9">    ${c.msg}</span>\n` +
+        `<span style="color:#8b949e">    ${c.files.length} archivo(s)</span>\n`,
+        'out'
+      );
+    });
+    return;
+  }
+
+  /* ---------- GIT BRANCH ---------- */
+  if (sub === 'branch') {
+    const nombre = parts[2];
+    if (!nombre) {
+      repo.branches.forEach(b => {
+        const marca = b === repo.branch ? '* ' : '  ';
+        printHTML(marca + `<span style="color:${b === repo.branch ? '#3fb950' : '#c9d1d9'}">${b}</span>`, 'out');
+      });
+      return;
+    }
+    if (repo.branches.includes(nombre)) {
+      print(`fatal: a branch named '${nombre}' already exists`, 'err');
+      return;
+    }
+    repo.branches.push(nombre);
+    print(`Rama "${nombre}" creada. (sigue en ${repo.branch})`, 'ok');
+    return;
+  }
+
+  /* ---------- GIT CHECKOUT ---------- */
+  if (sub === 'checkout' || sub === 'switch') {
+    // checkout -b nombre  /  switch -c nombre
+    const flagIndex = parts.findIndex(p => p === '-b' || p === '-c');
+    if (flagIndex !== -1) {
+      const nombre = parts[flagIndex + 1];
+      if (!nombre) { print('error: falta el nombre de la rama', 'err'); return; }
+      if (repo.branches.includes(nombre)) {
+        print(`fatal: a branch named '${nombre}' already exists`, 'err');
+        return;
+      }
+      repo.branches.push(nombre);
+      repo.branch = nombre;
+      print(`Switched to a new branch '${nombre}'`, 'ok');
+      actualizarPrompt();
+      return;
+    }
+
+    const destino = parts[2];
+    if (!destino) { print('error: falta el nombre de la rama', 'err'); return; }
+    if (!repo.branches.includes(destino)) {
+      print(`error: pathspec '${destino}' did not match any file(s) known to git`, 'err');
+      return;
+    }
+    repo.branch = destino;
+    print(`Switched to branch '${destino}'`, 'ok');
+    actualizarPrompt();
+    return;
+  }
+
+  /* ---------- GIT MERGE ---------- */
+  if (sub === 'merge') {
+    const origen = parts[2];
+    if (!origen) { print('error: falta el nombre de la rama a fusionar', 'err'); return; }
+    if (!repo.branches.includes(origen)) {
+      print(`merge: ${origen} - not something we can merge`, 'err');
+      return;
+    }
+    if (origen === repo.branch) {
+      print('Already up to date.', 'warn');
+      return;
+    }
+    const hash = Math.random().toString(16).slice(2, 9);
+    repo.commits.push({
+      hash,
+      msg: `Merge branch '${origen}' into ${repo.branch}`,
+      branch: repo.branch,
+      files: []
+    });
+    print(`Merge made by the 'ort' strategy.`, 'ok');
+    print(`[${repo.branch} ${hash}] Merge branch '${origen}' into ${repo.branch}`, 'ok');
+    return;
+  }
+
+  /* ---------- GIT REMOTE ---------- */
+  if (sub === 'remote') {
+    if (parts[2] === 'add') {
+      const url = parts.slice(4).join(' ');
+      repo.remote = url || 'origin';
+      print(`Remoto "origin" añadido → ${url}`, 'ok');
+      return;
+    }
+    if (parts[2] === '-v' || !parts[2]) {
+      if (repo.remote) print(`origin  ${repo.remote} (fetch)\norigin  ${repo.remote} (push)`, 'out');
+      else print('(no hay remotos configurados)', 'warn');
+      return;
+    }
+  }
+
+  /* ---------- GIT PUSH ---------- */
+  if (sub === 'push') {
+    if (!repo.remote) {
+      print('fatal: No configured push destination.', 'err');
+      print('Pista: usa "git remote add origin <url>" primero.', 'warn');
+      return;
+    }
+    print('Enumerating objects: 5, done.', 'out');
+    print('Counting objects: 100% (5/5), done.', 'out');
+    print(`To ${repo.remote}`, 'out');
+    print(`   ${repo.commits[0]?.hash || '0000000'}..${repo.commits.at(-1)?.hash || '0000000'}  ${repo.branch} -> ${repo.branch}`, 'ok');
+    print('✔ Cambios subidos correctamente a GitHub.', 'ok');
+    return;
+  }
+
+  /* ---------- GIT PULL ---------- */
+  if (sub === 'pull') {
+    if (!repo.remote) {
+      print('fatal: no hay remoto configurado.', 'err');
+      return;
+    }
+    print('Already up to date.', 'ok');
+    return;
+  }
+
+  /* ---------- COMANDO NO RECONOCIDO ---------- */
+  print(`git: '${sub}' is not a git command. See 'git --help'.`, 'err');
+  print('Pista: escribe "help" para ver los comandos disponibles.', 'warn');
+}
+
+/* -------- Eventos de la terminal -------- */
+termInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    const valor = termInput.value;
+    termInput.value = '';
+    if (valor.trim()) ejecutar(valor);
+    termBody.scrollTop = termBody.scrollHeight;
+  }
+});
+
+// Historial con flechas ↑ ↓
+const historial = [];
+let histIndex = -1;
+
+termInput.addEventListener('keydown', e => {
+  if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    if (!historial.length) return;
+    histIndex = histIndex === -1 ? historial.length - 1 : Math.max(0, histIndex - 1);
+    termInput.value = historial[histIndex];
+  }
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    if (histIndex === -1) return;
+    histIndex++;
+    if (histIndex >= historial.length) { histIndex = -1; termInput.value = ''; }
+    else termInput.value = historial[histIndex];
+  }
+});
+
+termInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    const v = termInput.value.trim();
+    if (v) { historial.push(v); histIndex = -1; }
+  }
+}, true);
+
+// Clic en cualquier parte de la terminal → focus al input
+document.querySelector('.terminal').addEventListener('click', () => termInput.focus());
+
+/* ============================================================
+   VISUALIZADOR DE RAMAS
+   ============================================================ */
+const VIZ_STEPS = [
+  {
+    desc: '<b>Paso 1 — Estado inicial.</b> Tienes dos commits (A y B) en la rama <b>main</b>. Todo tu trabajo vive aquí por ahora.',
+    visible: ['A', 'B'],
+    lines: [['A','B']]
+  },
+  {
+    desc: '<b>Paso 2 — Creas la rama "feature".</b> Con <code>git checkout -b feature</code> nace una nueva línea de trabajo. <b>main no se toca.</b> Puedes experimentar sin miedo.',
+    visible: ['A', 'B'],
+    lines: [['A','B']]
+  },
+  {
+    desc: '<b>Paso 3 — Primer commit en feature.</b> Añades el commit C en la rama feature. Ahora las dos ramas han divergido: main sigue en B, feature avanza.',
+    visible: ['A', 'B', 'C'],
+    lines: [['A','B'], ['B','C', true]]
+  },
+  {
+    desc: '<b>Paso 4 — Segundo commit en feature.</b> El commit D se suma a la rama. Tu funcionalidad va tomando forma mientras main permanece estable.',
+    visible: ['A', 'B', 'C', 'D'],
+    lines: [['A','B'], ['B','C', true], ['C','D']]
+  },
+  {
+    desc: '<b>Paso 5 — Merge.</b> Con <code>git merge feature</code> desde main, se crea el commit M que une ambas historias. ¡Tu funcionalidad ya está en main! 🎉',
+    visible: ['A', 'B', 'C', 'D', 'M'],
+    lines: [['A','B'], ['B','C', true], ['C','D'], ['B','M'], ['D','M', true]]
+  }
+];
+
+// Coordenadas de cada commit en el SVG
+const VIZ_POS = {
+  A: { x: 60,  y: 120 },
+  B: { x: 155, y: 120 },
+  C: { x: 250, y: 45  },
+  D: { x: 345, y: 45  },
+  M: { x: 440, y: 120 }
+};
+
+const VIZ_COLOR = {
+  A: '#58a6ff', B: '#58a6ff',
+  C: '#bc8cff', D: '#bc8cff',
+  M: '#3fb950'
+};
+
+let vizStep = 0;
+
+function renderViz() {
+  const svg = $('#vizSvg');
+  const step = VIZ_STEPS[vizStep];
+
+  let html = `
+    <defs>
+      <filter id="glow">
+        <feGaussianBlur stdDeviation="3" result="b"/>
+        <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+    </defs>
+  `;
+
+  // Etiquetas de rama
+  if (vizStep >= 1) {
+    html += `<text x="60" y="160" fill="#58a6ff" font-size="12" font-family="monospace" font-weight="bold">main</text>`;
+  }
+  if (vizStep >= 1 && vizStep < 4) {
+    html += `<text x="250" y="25" fill="#bc8cff" font-size="12" font-family="monospace" font-weight="bold">feature</text>`;
+    html += `<text x="250" y="25" fill="#bc8cff" font-size="12" font-family="monospace">👆 HEAD</text>`;
+  }
+  if (vizStep === 4) {
+    html += `<text x="250" y="25" fill="#bc8cff" font-size="12" font-family="monospace" font-weight="bold" opacity="0.5">feature</text>`;
+  }
+
+  // Líneas
+  step.lines.forEach(([from, to, curve]) => {
+    const a = VIZ_POS[from], b = VIZ_POS[to];
+    if (curve) {
+      const midX = (a.x + b.x) / 2;
+      html += `<path d="M ${a.x} ${a.y} Q ${midX} ${a.y} ${midX} ${(a.y + b.y)/2} T ${b.x} ${b.y}"
+                fill="none" stroke="#484f58" stroke-width="2.5" stroke-dasharray="6 4"/>`;
+    } else {
+      html += `<line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}"
+                stroke="${VIZ_COLOR[from]}" stroke-width="2.5" opacity="0.6"/>`;
+    }
+  });
+
+  // Commits
+  step.visible.forEach(id => {
+    const p = VIZ_POS[id];
+    const color = VIZ_COLOR[id];
+    html += `
+      <circle cx="${p.x}" cy="${p.y}" r="15" fill="${color}" opacity="0.18"/>
+      <circle cx="${p.x}" cy="${p.y}" r="10" fill="${color}" stroke="#0d1117" stroke-width="2.5" filter="url(#glow)">
+        <animate attributeName="r" from="0" to="10" dur="0.35s" fill="freeze"/>
+      </circle>
+      <text x="${p.x}" y="${p.y + 4}" text-anchor="middle"
+            fill="#0d1117" font-size="10" font-weight="bold" font-family="monospace">${id}</text>
+    `;
+  });
+
+  svg.innerHTML = html;
+  $('#vizDesc').innerHTML = step.desc;
+  $('#vizStepNum').textContent = vizStep + 1;
+  $('#vizNext').disabled = vizStep === VIZ_STEPS.length - 1;
+  $('#vizNext').style.opacity = vizStep === VIZ_STEPS.length - 1 ? 0.45 : 1;
+}
+
+$('#vizNext').addEventListener('click', () => {
+  if (vizStep < VIZ_STEPS.length - 1) { vizStep++; renderViz(); }
+});
+$('#vizReset').addEventListener('click', () => { vizStep = 0; renderViz(); });
+renderViz();
+
+/* ============================================================
+   QUIZ
+   ============================================================ */
+const PREGUNTAS = [
+  {
+    q: '¿Qué comando inicializa un repositorio Git en una carpeta?',
+    opts: ['git start', 'git init', 'git create', 'git new'],
+    ok: 1
+  },
+  {
+    q: '¿Qué hace exactamente "git add ." ?',
+    opts: [
+      'Sube los cambios a GitHub',
+      'Crea un commit con todos los archivos',
+      'Prepara todos los archivos modificados para el próximo commit',
+      'Descarga los cambios del repositorio remoto'
+    ],
+    ok: 2
+  },
+  {
+    q: '¿Cuál es la diferencia principal entre Git y GitHub?',
+    opts: [
+      'Son exactamente lo mismo',
+      'Git es local (control de versiones) y GitHub es la plataforma en la nube',
+      'GitHub es de pago y Git es gratis',
+      'Git solo funciona en Windows'
+    ],
+    ok: 1
+  },
+  {
+    q: '¿Qué comando crea una nueva rama Y se cambia a ella?',
+    opts: [
+      'git branch nueva-rama',
+      'git checkout -b nueva-rama',
+      'git merge nueva-rama',
+      'git new-branch nueva-rama'
+    ],
+    ok: 1
+  },
+  {
+    q: '¿Qué es un Pull Request (PR)?',
+    opts: [
+      'Un comando para descargar código',
+      'Una solicitud para fusionar cambios de una rama a otra, con revisión',
+      'Un tipo de repositorio privado',
+      'Un error de Git'
+    ],
+    ok: 1
+  },
+  {
+    q: 'Para publicar un sitio con GitHub Pages, ¿qué archivo debe existir en la raíz?',
+    opts: ['main.html', 'home.html', 'index.html', 'start.html'],
+    ok: 2
+  }
+];
+
+let respuestas = new Array(PREGUNTAS.length).fill(null);
+
+function renderQuiz() {
+  const box = $('#quizBox');
+  box.innerHTML = PREGUNTAS.map((p, i) => `
+    <div class="q" data-q="${i}">
+      <p class="qtext">${i + 1}. ${p.q}</p>
+      ${p.opts.map((o, j) => `
+        <label class="opt" data-opt="${j}">
+          <input type="radio" name="q${i}" value="${j}">
+          <span>${o}</span>
+        </label>
+      `).join('')}
+    </div>
+  `).join('');
+
+  // Listener de cambio
+  box.querySelectorAll('input[type=radio]').forEach(inp => {
+    inp.addEventListener('change', e => {
+      const qIndex = +e.target.closest('.q').dataset.q;
+      respuestas[qIndex] = +e.target.value;
+    });
+  });
+}
+
+renderQuiz();
+
+$('#quizCheck').addEventListener('click', () => {
+  if (respuestas.includes(null)) {
+    showToast('⚠️ Responde todas las preguntas');
+    return;
+  }
+
+  let aciertos = 0;
+
+  PREGUNTAS.forEach((p, i) => {
+    const qEl = document.querySelector(`.q[data-q="${i}"]`);
+    const opts = qEl.querySelectorAll('.opt');
+
+    opts.forEach((opt, j) => {
+      opt.classList.remove('correct', 'wrong');
+      if (j === p.ok) opt.classList.add('correct');
+      if (j === respuestas[i] && respuestas[i] !== p.ok) opt.classList.add('wrong');
+    });
+
+    if (respuestas[i] === p.ok) aciertos++;
+  });
+
+  const total = PREGUNTAS.length;
+  const pct = Math.round((aciertos / total) * 100);
+
+  let msg, color, emoji;
+  if (pct === 100)      { emoji = '🏆'; msg = '¡Perfecto! Dominas Git y GitHub.';          color = '#3fb950'; }
+  else if (pct >= 70)   { emoji = '🎉'; msg = '¡Muy bien! Solo te faltan detalles.';       color = '#58a6ff'; }
+  else if (pct >= 50)   { emoji = '📚'; msg = 'Vas por buen camino. Repasa los comandos.'; color = '#d29922'; }
+  else                  { emoji = '💪'; msg = 'Toca repasar. ¡Vuelve a la guía!';          color = '#f78166'; }
+
+  const result = $('#quizResult');
+  result.style.background = `rgba(${color === '#3fb950' ? '63,185,80' : color === '#58a6ff' ? '88,166,255' : color === '#d29922' ? '210,153,34' : '247,129,102'},.12)`;
+  result.style.border = `1px solid ${color}`;
+  result.style.color = color;
+  result.innerHTML = `${emoji} <span style="font-size:1.4rem">${aciertos}/${total}</span> — ${pct}%<br><span style="font-weight:400;font-size:.9rem">${msg}</span>`;
+  result.classList.add('show');
+
+  result.scrollIntoView({ behavior: 'smooth', block: 'center' });
+});
+
+$('#quizReset').addEventListener('click', () => {
+  respuestas = new Array(PREGUNTAS.length).fill(null);
+  renderQuiz();
+  $('#quizResult').classList.remove('show');
+  showToast('Quiz reiniciado');
+});
+
+/* ============================================================
+   FAQ / ACORDEÓN
+   ============================================================ */
+const FAQS = [
+  {
+    q: '¿Necesito saber programar para usar Git y GitHub?',
+    a: 'No. Git es útil para cualquier archivo de texto: documentación, novelas, hojas de cálculo en CSV, configuraciones... Aunque brilla especialmente con código.'
+  },
+  {
+    q: '¿Cuál es la diferencia entre git fetch y git pull?',
+    a: '<b>fetch</b> descarga los cambios del remoto pero NO los aplica a tu rama; puedes revisarlos antes. <b>pull</b> hace fetch + merge automáticamente. En equipos grandes se recomienda fetch primero.'
+  },
+  {
+    q: '¿Qué hago si me equivoco con un commit?',
+    a: 'Si aún no lo has subido: <code>git commit --amend</code> para el último, o <code>git reset --soft HEAD~1</code> para deshacerlo conservando cambios. Si ya lo subiste: <code>git revert &lt;hash&gt;</code>, que crea un commit inverso seguro.'
+  },
+  {
+    q: '¿Qué es un conflicto de merge y cómo se resuelve?',
+    a: 'Ocurre cuando dos ramas modifican la misma línea del mismo archivo. Git marca el archivo con <code>&lt;&lt;&lt;&lt;&lt;&lt;&lt;</code>, <code>=======</code> y <code>&gt;&gt;&gt;&gt;&gt;&gt;&gt;</code>. Editas el archivo eligiendo el contenido final, guardas, haces <code>git add</code> y <code>git commit</code>.'
+  },
+  {
+    q: '¿GitHub es gratis?',
+    a: 'Sí. Los repositorios públicos y privados son gratuitos e ilimitados. Los planes de pago (Pro, Team, Enterprise) añaden funciones avanzadas de equipo, seguridad y soporte.'
+  },
+  {
+    q: '¿Qué es un archivo .gitignore?',
+    a: 'Un archivo de texto donde listas patrones de archivos que Git debe ignorar: <code>node_modules/</code>, <code>.env</code>, <code>*.log</code>, etc. Evita subir basura o secretos al repositorio.'
+  },
+  {
+    q: '¿Cómo contribuyo a un proyecto open source?',
+    a: 'Busca issues etiquetados como <code>good first issue</code>, haz un <b>fork</b>, crea una rama, realiza tus cambios, súbelos y abre un <b>Pull Request</b> explicando qué mejoraste.'
+  }
+];
+
+function renderFaq() {
+  $('#faqBox').innerHTML = FAQS.map((f, i) => `
+    <div class="faq-item" data-i="${i}">
+      <button class="faq-q">
+        <span>${f.q}</span>
+        <span class="arrow">+</span>
+      </button>
+      <div class="faq-a">${f.a}</div>
+    </div>
+  `).join('');
+
+  $$('.faq-q').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const item = btn.parentElement;
+      const abierto = item.classList.contains('open');
+      // Cierra todos
+      $$('.faq-item').forEach(it => it.classList.remove('open'));
+      // Abre el pulsado si estaba cerrado
+      if (!abierto) item.classList.add('open');
+    });
+  });
+}
+
+renderFaq();
+
+/* ============================================================
+   ATAJOS DE TECLADO
+   ============================================================ */
+document.addEventListener('keydown', e => {
+  // "/" enfoca el buscador de comandos
+  if (e.key === '/' && document.activeElement.tagName !== 'INPUT') {
+    e.preventDefault();
+    $('#cmdSearch').focus();
+    $('#cmdSearch').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+  // Escape quita el foco
+  if (e.key === 'Escape') document.activeElement.blur();
+});
+
+/* ============================================================
+   MENSAJE FINAL EN CONSOLA
+   ============================================================ */
+console.log('%c🐙 GitHub Interactivo', 'font-size:20px;font-weight:bold;color:#58a6ff;');
+console.log('%cGuía educativa — libre para copiar y modificar.', 'color:#8b949e;');
+console.log('%cAtajo: pulsa "/" para buscar comandos.', 'color:#3fb950;');
+</script>
+
+</body>
+</html>
